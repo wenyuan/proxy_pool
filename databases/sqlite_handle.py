@@ -84,7 +84,10 @@ class SqliteHandle(object):
             condition = ('*', count)
         con = sqlite3.connect(DB_PATH)
         cur = con.cursor()
-        cur.execute(' SELECT * FROM proxy_list WHERE protocol=? limit 0,?', condition)
+        if condition[0] == '*':
+            cur.execute(' SELECT * FROM proxy_list limit 0,?', (condition[1],))
+        else:
+            cur.execute(' SELECT * FROM proxy_list WHERE protocol=? limit 0,?', condition)
         res = cur.fetchall()
         cur.close()
         con.close()
@@ -132,6 +135,7 @@ if __name__ == '__main__':
                   {'ip': '127.0.0.1', 'port': 100, 'protocol': 'http', 'city': '中国', 'update_date': 'today'}]
     #sqlite_handle.insert_data(proxy_list)
     #sqlite_handle.get_all_data()
-    #sqlite_handle.get_data_by_condition('httd',10)
+    a=sqlite_handle.get_data_by_condition('https',10)
+    print(a)
     #sqlite_handle.delete_invalid_data(proxy_list)
     #sqlite_handle.delete_table()
