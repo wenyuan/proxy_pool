@@ -19,30 +19,18 @@ class Validator(object):
     def __init__(self):
         self.user_agent = random.choice(USER_AGENTS)
         self.target_headers = {'Upgrade-Insecure-Requests': '1',
-                          'User-Agent': self.user_agent,
-                          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                          'Referer': 'http://www.xicidaili.com/nn/',
-                          'Accept-Encoding': 'gzip, deflate, sdch',
-                          'Accept-Language': 'zh-CN,zh;q=0.8',
-                          }
+                               'User-Agent': self.user_agent,
+                               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                               'Referer': 'http://www.xicidaili.com/nn/',
+                               'Accept-Encoding': 'gzip, deflate, sdch',
+                               'Accept-Language': 'zh-CN,zh;q=0.8',
+                               }
         self.proxy_list = []
         self.https_proxy_list = []
         self.http_proxy_list = []
 
-    def check_proxy1(self, proxy_list):
-        for proxy in proxy_list:
-            ip = proxy['ip']
-            port = proxy['port']
-            protocol = proxy['protocol']
-            if 'https' in protocol:
-                result = self._check_https_proxy(ip, port)
-            else:
-                result = self._check_http_proxy(ip, port)
-            if not result:
-                proxy_list.remove(proxy)
-        return proxy_list
-
     def _check_https_proxy(self, https_proxy_list):
+        valid_https_proxy_list = []
         for https_proxy in https_proxy_list:
             ip = https_proxy['ip']
             port = https_proxy['port']
@@ -52,10 +40,14 @@ class Validator(object):
             try:
                 requests.get('https://www.baidu.com/', headers=self.target_headers, proxies=proxies, timeout=3)
             except:
-                https_proxy_list.remove(https_proxy)
-        self.https_proxy_list = https_proxy_list
+                # logger.warn('invalid https_proxy')
+                pass
+            else:
+                valid_https_proxy_list.append(https_proxy)
+        self.https_proxy_list = valid_https_proxy_list
 
     def _check_http_proxy(self, http_proxy_list):
+        valid_http_proxy_list = []
         for http_proxy in http_proxy_list:
             ip = http_proxy['ip']
             port = http_proxy['port']
@@ -65,8 +57,11 @@ class Validator(object):
             try:
                 requests.get('http://www.guaishouxueyuan.net', headers=self.target_headers, proxies=proxies, timeout=3)
             except:
-                http_proxy_list.remove(http_proxy)
-        self.http_proxy_list = http_proxy_list
+                # logger.warn('invalid http_proxy')
+                pass
+            else:
+                valid_http_proxy_list.append(http_proxy)
+        self.http_proxy_list = valid_http_proxy_list
 
     def check_proxy(self, proxy_list):
         self.https_proxy_list = [proxy for proxy in proxy_list if proxy['protocol'] == 'https']
@@ -79,7 +74,7 @@ class Validator(object):
         threads.append(t2)
 
         starttime = datetime.datetime.now()
-        logger.info('开始验证代理池IP有效性')
+        logger.info('Start to validate...')
         for thread in threads:
             thread.setDaemon(True)
             thread.start()
@@ -92,9 +87,10 @@ class Validator(object):
             time.sleep(3)
         endtime = datetime.datetime.now()
         usedtime = (endtime - starttime).seconds
-        logger.info('代理池验证完毕,用时%s秒' % str(usedtime))
+        logger.info('Validation completed,took %s seconds' % str(usedtime))
         self.proxy_list = self.https_proxy_list + self.http_proxy_list
         return self.proxy_list
+
 
 if __name__ == '__main__':
     #validator = Validator()

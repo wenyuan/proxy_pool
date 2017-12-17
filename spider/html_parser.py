@@ -29,7 +29,5 @@ class HtmlParser(object):
                 protocol = dom.xpath('//td[6]')[0].text.lower()
                 city = dom.xpath('//td[4]/a/text()')[0] if dom.xpath('//td[4]/a/text()') else '未知'
                 date = dom.xpath('//td[10]')[0].text
-                proxy_list.append({'ip': ip, 'port': port, 'protocol': protocol, 'city': city, 'date': date})
+                proxy_list.append({'ip': ip, 'port': port, 'protocol': protocol, 'city': city, 'update_date': date})
         return proxy_list
-
-
