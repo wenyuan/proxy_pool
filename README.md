@@ -9,7 +9,7 @@
 apt-get install sqlite3
 <br/>
 2.安装pip包
-pip install -r requirements.txt
+sudo pip install -r requirements.txt
 <br/>
 
 #### Windows
